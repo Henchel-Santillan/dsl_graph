@@ -85,7 +85,9 @@ namespace nonlinear::tree
         [[nodiscard]] constexpr bitree_node* root() const noexcept    { return m_root; }
         [[nodiscard]] constexpr int size() const noexcept             { return m_size; }
 
-        constexpr int depth(bitree_node*) const noexcept;
+        template <Comparable Tp>
+        [[nodiscard]] constexpr int binary_tree<Tp>::depth(binary_tree::bitree_node *const root) const noexcept
+        { return (root == nullptr) ? 0 : std::max(depth(root->m_left) + 1, depth(root->m_right) + 1); }
 
         constexpr void in_order(bitree_node*, std::ostream&) const noexcept;
         constexpr void post_order(bitree_node*, std::ostream&) const noexcept;
@@ -111,8 +113,8 @@ namespace nonlinear::tree
 
 
         //****** Properties ******//
-        constexpr bool is_complete(bitree_node *const node) const noexcept  { return complete(node, 0); }
-        constexpr bool is_perfect(bitree_node *const node) const noexcept   { return perfect(node, 0); }
+        [[nodiscard]] constexpr bool is_complete(bitree_node *const node) const noexcept  { return complete(node, 0); }
+        [[nodiscard]] constexpr bool is_perfect(bitree_node *const node) const noexcept   { return perfect(node, 0); }
         constexpr bool is_balanced(bitree_node*) const noexcept;
         constexpr bool is_full(bitree_node*) const noexcept;
         constexpr bool is_mirror(bitree_node*, bitree_node*) const noexcept;
@@ -186,15 +188,6 @@ namespace nonlinear::tree
         using std::swap;
         swap(rhs.m_root, m_root);
         swap(rhs.m_size, m_size);
-    }
-
-
-    // Computes the depth or height of a node in the tree, if it exists
-    template <Comparable Tp>
-    constexpr int binary_tree<Tp>::depth(binary_tree::bitree_node *const root) const noexcept
-    {
-        if (root == nullptr) return 0;
-        return std::max(depth(root->m_left) + 1, depth(root->m_right) + 1);
     }
 
 
@@ -546,7 +539,7 @@ namespace nonlinear::tree
     template <Comparable Tp>
     constexpr bool binary_tree<Tp>::pop(const Tp &value)
     {
-        auto last = last_level_order();
+        auto *last = last_level_order();
         if (m_root != nullptr && m_root->m_value == value)
             m_root->m_value = last->m_value;
 

@@ -44,9 +44,6 @@ namespace nonlinear::tree
         constexpr void increase_key(const Tp&, const Tp&) noexcept;
         constexpr void decrease_key(const Tp&, const Tp&) noexcept;
 
-        constexpr const bitree_node& pushpop() noexcept;
-        constexpr const bitree_node& poppush() noexcept;
-
         constexpr const Tp& max() const override { return this->m_root->m_value; }
         constexpr bool push(const Tp&) override;
         constexpr bool pop(const Tp&) override;
@@ -124,21 +121,7 @@ namespace nonlinear::tree
         bitree_node *node = (found) ? &(*found) : nullptr;
 
         if (node != nullptr)
-        {
-            while (node->m_left != nullptr || node->m_right != nullptr)
-            {
-                bitree_node *b = nullptr;
-                if (node->m_left != nullptr && node->m_right != nullptr)
-                    b = (node->m_left->m_value < node->m_right->m_value) ? node->m_left : node->m_right;
-                else
-                    b = (node->m_left != nullptr) ? node->m_left : node->m_right;
-
-                auto temp = b->m_value;
-                b->m_value = node->m_value;
-                node->m_value = temp;
-                node = b;
-            }
-        }
+            try_sift_down(node);
     }
 
 
@@ -177,30 +160,33 @@ namespace nonlinear::tree
 
 
     template <Comparable Tp>
-    constexpr const bitree_node& max_heap<Tp>::poppush() noexcept
+    constexpr bool max_heap<Tp>::push(const Tp &value)
     {
-
+        if (!binary_tree<Tp>::push(value)) return false;
+        sift_up(value);
     }
 
 
     template <Comparable Tp>
-    constexpr const bitree_node & max_heap<Tp>::pushpop() noexcept
+    constexpr bool max_heap<Tp>::pop(const Tp &value)
     {
+        auto found_n = this->find(value);
+        if (!found_n) return false;
 
-    }
+        auto *n = *found_n, *last = this->last_level_order();
+        n->m_value = last->m_value;
+        delete last;
+        last = nullptr;
 
+        auto found_p = this->parentOf(*n);
+        if (found_p && (*found_p).m_value < n->m_value)
+            sift_up(*n);
+        else if ((n->m_left != nullptr && n->m_left->m_value > n->m_value) ||
+                 (n->m_right != nullptr && n->m_right->m_value > n->m_value))
+            sift_down(*n);
 
-    template <Comparable Tp>
-    constexpr bool max_heap<Tp>::push(const Tp &)
-    {
-
-    }
-
-
-    template <Comparable Tp>
-    constexpr bool max_heap<Tp>::pop(const Tp &)
-    {
-
+        this->m_size--;
+        return true;
     }
 
 

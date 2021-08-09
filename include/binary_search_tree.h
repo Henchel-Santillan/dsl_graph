@@ -94,7 +94,7 @@ namespace nonlinear::tree
         if (this->m_root == nullptr || this->m_root->m_value == value)
             return std::nulopt;
 
-        bitree_node *curr = m_root, *prev = nullptr;
+        bitree_node *curr = this->m_root, *prev = nullptr;
         while (curr != nullptr)
         {
             if (curr->m_value == value)
@@ -113,7 +113,7 @@ namespace nonlinear::tree
         if (this->m_root == nullptr)
             return std::nullopt;
 
-        auto *curr = m_root;
+        auto *curr = this->m_root;
         while (curr != nullptr)
         {
             if (curr->m_value == value)
@@ -146,11 +146,11 @@ namespace nonlinear::tree
     template <Comparable Tp>
     constexpr bool binary_search_tree<Tp>::push(const Tp &value)
     {
-        if (m_root == nullptr)
-            m_root = new bitree_node<Tp>(value);
+        if (this->m_root == nullptr)
+            this->m_root = new bitree_node<Tp>(value);
         else
         {
-            bitree_node *curr = m_root, *prev = nullptr;
+            bitree_node *curr = this->m_root, *prev = nullptr;
             while (curr != nullptr)
             {
                 if (curr->m_value == value)
