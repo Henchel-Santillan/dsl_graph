@@ -5,7 +5,7 @@
 #include "binary_tree.h"
 
 
-namespace nonlinear::tree
+namespace dsl::nonlinear::tree
 {
     template <Comparable Tp>
     class binary_search_tree : public binary_tree<Tp>

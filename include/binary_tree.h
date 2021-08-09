@@ -12,7 +12,7 @@
 #include "traits.h"
 
 
-namespace nonlinear::tree
+namespace dsl::nonlinear::tree
 {
     namespace details
     {

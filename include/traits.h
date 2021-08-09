@@ -5,7 +5,7 @@
 #include <concepts>
 
 
-namespace nonlinear {
+namespace dsl::nonlinear {
 
     template <typename Tp>
     concept Comparable = requires (Tp a, Tp b)

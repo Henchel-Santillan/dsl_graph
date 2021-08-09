@@ -5,7 +5,7 @@
 #include "binary_tree.h"
 
 
-namespace nonlinear::tree
+namespace dsl::nonlinear::tree
 {
     template <Comparable Tp>
     class max_heap : public binary_tree<Tp>
