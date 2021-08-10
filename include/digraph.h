@@ -13,7 +13,7 @@
 #include "traits.h"
 
 
-namespace nonlinear::graph
+namespace dsl::nonlinear::graph
 {
     namespace details
     {
@@ -25,7 +25,8 @@ namespace nonlinear::graph
             // Constructors
             constexpr digraph_node() noexcept = default;
             constexpr explicit digraph_node(const Tp &value, const int cost = default_weight) noexcept
-                : m_value(value), m_cost(cost) {}
+                : m_value(value),
+                  m_cost(cost) {}
 
             // Copy/move assignment
             constexpr digraph_node& operator=(const digraph_node &rhs) noexcept
@@ -39,8 +40,8 @@ namespace nonlinear::graph
             // Delegate resource destruction responsibility to the containing class
             virtual ~digraph_node() noexcept = default;
 
-            Tp m_value;
-            int m_cost;
+            Tp m_value {};
+            int m_cost = default_weight;    //m_cost represents the cost to get to this node
 
         };  // struct digraph_node
 
@@ -53,7 +54,7 @@ namespace nonlinear::graph
     class digraph
     {
     public:
-        using digraph_node = typename details::digraph_node;
+        using digraph_node = typename details::digraph_node<Tp>;
 
 
         // Constructors
@@ -61,7 +62,6 @@ namespace nonlinear::graph
         explicit digraph(const int capacity = default_capacity)
             : m_capacity(capacity),
               m_size(0),
-              m_root(nullptr),
               m_adjList(m_capacity <= 0 ? nullptr : new digraph_node<Tp>*[m_capacity])
         {
             if (m_capacity <= 0)
@@ -96,8 +96,6 @@ namespace nonlinear::graph
         constexpr std::optional<const digraph_node&> find_bfs(const Tp&) const noexcept;
         constexpr std::optional<const digraph_node&> find_dfs(const Tp&) const noexcept;
 
-        const digraph& transpose() const noexcept;
-        constexpr bool is_strongly_connected() const noexcept;
         constexpr bool has_link(const Tp&, const Tp&) const noexcept;
         [[nodiscard]] constexpr int count_disconnected() const noexcept;
         constexpr int in_degree(const Tp&) const noexcept;
@@ -109,22 +107,18 @@ namespace nonlinear::graph
         constexpr bool push_vertex(const Tp&, int = default_weight) noexcept;
         constexpr bool push_edge(const Tp&, const Tp&, int = default_weight, int = default_weight) noexcept;
         constexpr bool pop_vertex(const Tp&) noexcept;
-        constexpr bool pop_edge(const Tp&) noexcept;
 
         friend std::ostream& operator<<(std::ostream&, const digraph<Tp>&) noexcept;
 
     private:
-        int m_capacity, m_size;
-        digraph_node<Tp> *m_root;       // will point to first inserted node, else next inserted
+        int m_capacity = 0, m_size = 0;
         digraph_node<Tp> **m_adjList;
 
 
         constexpr int indexOf(const Tp&) const noexcept;
         constexpr int try_push(const Tp&, int = default_weight) noexcept;
-        constexpr void recompute_root() noexcept;
-        constexpr int edge_length() const noexcept;
 
-    };  // class digraph-proto
+    };  // class digraph
 
 
 
@@ -135,19 +129,15 @@ namespace nonlinear::graph
     digraph<Tp>::digraph(const digraph<Tp> &rhs)
         : m_capacity(rhs.m_capacity),
           m_size(rhs.m_size),
-          m_root(nullptr),
           m_adjList(rhs.m_capcacity <= 0 ? nullptr : new digraph_node<Tp>*[rhs.m_capacity])
     {
         if (m_adjList != nullptr)
         {
             for (auto i = 0; i < rhs.m_capacity; i++)
             {
-                auto *rhs_curr = rhs.m_adjList[i];
-                if (rhs_curr == rhs.m_root)
-                    m_root = rhs_curr;
-
-                if (rhs_curr != nullptr)
+                if (rhs.m_adjList[i] != nullptr)
                 {
+                    auto *rhs_curr = rhs.m_adjList[i];
                     m_adjList[i] = new digraph_node<Tp>(rhs_curr->m_value);
                     auto *lhs_curr = m_adjList[i];
                     rhs_curr = rhs_curr->m_next;
@@ -171,7 +161,6 @@ namespace nonlinear::graph
     template <Comparable Tp>
     digraph<Tp>::~digraph()
     {
-        m_root = nullptr;
         for (const auto &node : m_adjList)
         {
             auto *curr = node;
@@ -195,7 +184,6 @@ namespace nonlinear::graph
         using std::swap;
         swap(rhs.m_capacity, m_capacity);
         swap(rhs.m_size, m_size);
-        swap(rhs.m_root, m_root);
         swap(rhs.m_adjList, m_adjList);
     }
 
@@ -204,7 +192,15 @@ namespace nonlinear::graph
     constexpr std::optional<const typename digraph<Tp>::digraph_node&>
     digraph<Tp>::find_bfs(const Tp &value) const noexcept
     {
-        auto *curr = m_root;
+        digraph_node *curr = nullptr;
+        for (auto i = 0; i < m_capacity; i++)
+        {
+            if (m_adjList[i] == nullptr)
+                continue;
+            curr = m_adjList[i];
+            break;
+        }
+
         if (curr != nullptr)
         {
             auto visited { std::set<digraph_node *const>{} };
@@ -239,6 +235,15 @@ namespace nonlinear::graph
     constexpr std::optional<const digraph_node&>
     digraph<Tp>::find_dfs(const Tp &value) const noexcept
     {
+        digraph_node *curr = nullptr;
+        for (auto i = 0; i < m_capacity; i++)
+        {
+            if (m_adjList[i] == nullptr)
+                continue;
+            curr = m_adjList[i];
+            break;
+        }
+
         auto *curr = m_root;
         if (m_root != nullptr)
         {
@@ -267,27 +272,6 @@ namespace nonlinear::graph
             }
         }
         return std::nullopt;
-    }
-
-
-    // Returns a copy of the current graph transposed (i.e., all edge directions reversed)
-    template <Comparable Tp>
-    const digraph& digraph<Tp>::transpose() const noexcept
-    {
-        digraph<Tp> temp(m_capacity);
-        for (auto i = 0; i < m_capacity; i++)
-        {
-
-        }
-    }
-
-
-    // if each pair of nodes is connected (i.e. has a link)
-    // uses Kosaraju's + back-to-back dfs
-    template <Comparable Tp>
-    constexpr bool digraph<Tp>::is_strongly_connected() const noexcept
-    {
-
     }
 
 
@@ -459,8 +443,8 @@ namespace nonlinear::graph
     template <Comparable Tp>
     constexpr bool digraph<Tp>::push_edge(const Tp &start,
                                           const Tp &end,
-                                          const int start_weight = default_weight,
-                                          const int end_weight = default_weight) noexcept
+                                          const int start_weight = details::default_weight,
+                                          const int end_weight = details::default_weight) noexcept
     {
         // if contains start, link to end. add end to adjacency list, point to start, disregard(?) or overwrite weight.
         // if contains end, link to start. add start to adjacency list, point to end, disregard(?) or overwrite weight.
@@ -511,36 +495,72 @@ namespace nonlinear::graph
 
 
     // Traversal operates on Dijkstra's algorithm
+    template <Comparable Tp>
     std::ostream& operator<<(std::ostream &os, const digraph<Tp> &graph) noexcept
     {
-        auto s    { std::set<digraph_node *const>{} };
+        using digraph_node = typename digraph<Tp>::digraph_node;
 
-        // dist should be a map?
-        auto dist { std::vector<std::pair<digraph_node *const, int>(m_size, std::make_pair(nullptr, std::numeric_limits<int>::max())) };
+        auto s    { std::set<digraph_node *const>{} };
+        auto dist { std::map<digraph_node*, int>{} };
         auto prev { std::vector<digraph_node *const>{} };
 
-        for (auto i = 0; i < m_capacity; i++)
+        for (auto i = 0; i < graph.capacity(); i++)
         {
-            if (node != nullptr)
+            if (graph.m_adjList[i] != nullptr)
             {
-                dist[i].first = node;
+                dist[i].first = graph.m_adjList[i];
                 s.insert(node);
+                dist.insert(std::make_pair<digraph_node*, int>(graph.m_adjList[i], std::numeric_limits<int>::max()));
             }
         }
         dist[0].second = 0;
 
         while (!s.empty())
         {
-            auto *curr = *(s.begin());
-            s.erase(curr);
+            auto min = *std::min_element(s.begin(), s.end(),
+                          [](decltype(dist)::value_type &l, decltype(dist)::value_type &r) -> bool { return l.second < r.second; } );
+            s.erase(min.first);
 
-            auto *it = curr;
-            while (it != nullptr)
+            os << min.first->m_value;
+            auto *curr = min.first->m_next;
+            while (curr != nullptr)
             {
-
+                auto temp = dist[min.first] + curr->m_cost;
+                if (temp < dist[curr])
+                {
+                    dist[curr] = temp;
+                    prev.push_back(min.first);
+                }
             }
         }
+        return os;
+    }
 
+
+    template <Comparable Tp>
+    constexpr bool digraph<Tp>::pop_vertex(const Tp &value) noexcept
+    {
+        // invalidate all linked list m_next pointers first
+        // delete from the pointer C-style array
+        for (auto i = 0; i < m_capacity; i++)
+        {
+            digraph_node *curr = m_adjList[i];
+            if (m_adjList[i] != nullptr)
+            {
+                digraph_node *prev = nullptr, *curr = m_adjList[i];
+                while (curr != nullptr)
+                {
+                    if (curr->m_value == value)
+                    {
+                        auto *temp = curr->m_next;
+                        if (prev != nullptr)
+                            prev->m_next = temp;
+                    }
+                }
+            }
+            delete curr;
+            curr = nullptr;
+        }
     }
 
 
@@ -550,28 +570,6 @@ namespace nonlinear::graph
     template <Comparable Tp>
     constexpr void swap(digraph<Tp> &lhs, digraph<Tp> &rhs) noexcept
     { lhs.swap(rhs); }
-
-
-    /*
-     * Two directed acyclic graphs (DAGs) are deemed equal if:
-     * They both have the same size (but not necessarily the same capacity)
-     * One graph has nodes with the same containing values and weights as the other graph
-     * The adjacency list of each node with a specific (value, weight) pair is the same
-     * Adjacency list sameness ignores insertion order
-     * */
-    template <Comparable Tp>
-    constexpr bool operator==(const digraph<Tp> &lhs, const digraph<Tp> &rhs) noexcept
-    {
-        if (lhs.size() != rhs.size())
-            return false;
-        // Search for one value for all values in one array and compare to all values if other
-        // if found, then check parents of both
-    }
-
-
-    template <Comparable Tp>
-    [[nodiscard]] constexpr bool operator!=(const digraph<Tp> &lhs, const digraph<Tp> &rhs) noexcept
-    { return !operator==(lhs, rhs); }
 
 
 }   // namespace nonlinear::graph
