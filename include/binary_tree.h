@@ -345,7 +345,7 @@ namespace dsl::nonlinear::tree
     constexpr const Tp& binary_tree<Tp>::min() const
     {
         if (m_root == nullptr)
-            throw std::out_of_range("Cannot find maximum value in empty tree.");
+            throw std::out_of_range("Cannot find minimum value in empty tree.");
         return min(*m_root);
     }
 
@@ -622,7 +622,7 @@ namespace dsl::nonlinear::tree
     binary_tree<Tp>::toVector(const typename binary_tree<Tp>::bitree_node &root) const noexcept
     {
         auto v { std::vector<bitree_node*>{} };
-        vectorize(root);
+        vectorize(root, v);
         return v;
     }
 
