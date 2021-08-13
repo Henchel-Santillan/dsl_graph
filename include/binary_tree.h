@@ -17,17 +17,17 @@ namespace dsl::nonlinear::tree
     namespace details
     {
         template <Comparable Tp>
-        struct typename binary_tree<Tp>::bitree_node
+        struct bitree_node
         {
             // No-throw constructors
-            constexpr typename binary_tree<Tp>::bitree_node() noexcept = default;
-            constexpr explicit typename binary_tree<Tp>::bitree_node(const Tp &value) noexcept
+            constexpr bitree_node() noexcept = default;
+            constexpr explicit bitree_node(const Tp &value) noexcept
                 : m_value(value),
                   m_left(nullptr),
                   m_right(nullptr) {}
 
             // No-throw copy assignment
-            constexpr typename binary_tree<Tp>::bitree_node& operator=(const typename binary_tree<Tp>::bitree_node &rhs) noexcept
+            constexpr bitree_node& operator=(const bitree_node &rhs) noexcept
             {
                 if (this == &rhs) return *this;
                 m_value = rhs.m_value;
@@ -37,12 +37,12 @@ namespace dsl::nonlinear::tree
             }
 
             // Delegate resource destruction responsibility to the containing class
-            virtual ~typename binary_tree<Tp>::bitree_node() noexcept = default;
+            virtual ~bitree_node() noexcept = default;
 
             Tp m_value;
-            typename binary_tree<Tp>::bitree_node *m_left, *m_right;
+            bitree_node *m_left, *m_right;
 
-        };  // struct typename binary_tree<Tp>::bitree_node
+        };  // struct bitree_node
 
     }   // namespace details
 
@@ -52,7 +52,7 @@ namespace dsl::nonlinear::tree
     class binary_tree
     {
     public:
-        using typename binary_tree<Tp>::bitree_node = typename details::typename binary_tree<Tp>::bitree_node<Tp>;
+        using bitree_node = typename details::bitree_node<Tp>;
 
 
         //****** Member Functions ******//
@@ -82,42 +82,42 @@ namespace dsl::nonlinear::tree
 
         //****** Access and Traversal ******//
 
-        [[nodiscard]] constexpr typename binary_tree<Tp>::bitree_node* root() const noexcept    { return m_root; }
+        [[nodiscard]] constexpr bitree_node* root() const noexcept    { return m_root; }
         [[nodiscard]] constexpr int size() const noexcept             { return m_size; }
 
         template <Comparable Tp>
-        [[nodiscard]] constexpr int binary_tree<Tp>::depth(binary_tree::typename binary_tree<Tp>::bitree_node *const root) const noexcept
+        [[nodiscard]] constexpr int binary_tree<Tp>::depth(binary_tree::bitree_node *const root) const noexcept
         { return (root == nullptr) ? 0 : std::max(depth(root->m_left) + 1, depth(root->m_right) + 1); }
 
-        constexpr void in_order(typename binary_tree<Tp>::bitree_node*, std::ostream&) const noexcept;
-        constexpr void post_order(typename binary_tree<Tp>::bitree_node*, std::ostream&) const noexcept;
-        constexpr void pre_order(typename binary_tree<Tp>::bitree_node*, std::ostream&) const noexcept;
-        constexpr typename binary_tree<Tp>::bitree_node* last_level_order() const;
+        constexpr void in_order(bitree_node*, std::ostream&) const noexcept;
+        constexpr void post_order(bitree_node*, std::ostream&) const noexcept;
+        constexpr void pre_order(bitree_node*, std::ostream&) const noexcept;
+        constexpr bitree_node* last_level_order() const;
 
         friend std::ostream& operator<<(std::ostream&, const binary_tree<Tp>&) noexcept;
 
-        virtual constexpr const typename binary_tree<Tp>::bitree_node& maxKey(const typename binary_tree<Tp>::bitree_node&) const noexcept;
-        virtual constexpr const typename binary_tree<Tp>::bitree_node& minKey(const typename binary_tree<Tp>::bitree_node&) const noexcept;
+        virtual constexpr const bitree_node& maxKey(const bitree_node&) const noexcept;
+        virtual constexpr const bitree_node& minKey(const bitree_node&) const noexcept;
 
-        [[nodiscard]] virtual constexpr const Tp& max(const typename binary_tree<Tp>::bitree_node &from) const noexcept  { return maxKey(from).m_value; }
-        [[nodiscard]] virtual constexpr const Tp& min(const typename binary_tree<Tp>::bitree_node &from) const noexcept  { return minKey(from).m_value; }
+        [[nodiscard]] virtual constexpr const Tp& max(const bitree_node &from) const noexcept  { return maxKey(from).m_value; }
+        [[nodiscard]] virtual constexpr const Tp& min(const bitree_node &from) const noexcept  { return minKey(from).m_value; }
         virtual constexpr const Tp& max() const;
         virtual constexpr const Tp& min() const;    // throws if root is nullptr
 
-        virtual constexpr std::optional<typename binary_tree<Tp>::bitree_node&> parentOf(const typename binary_tree<Tp>::bitree_node&) const noexcept;
-        virtual constexpr std::optional<typename binary_tree<Tp>::bitree_node&> parentOf(const Tp&) const noexcept;
-        virtual constexpr std::optional<typename binary_tree<Tp>::bitree_node&> find(const Tp&) const noexcept;
+        virtual constexpr std::optional<bitree_node&> parentOf(const bitree_node&) const noexcept;
+        virtual constexpr std::optional<bitree_node&> parentOf(const Tp&) const noexcept;
+        virtual constexpr std::optional<bitree_node&> find(const Tp&) const noexcept;
 
-        virtual std::optional<std::stack<typename binary_tree<Tp>::bitree_node*>> pathTo(typename binary_tree<Tp>::bitree_node*) const noexcept;
-        virtual std::vector<typename binary_tree<Tp>::bitree_node*> toVector(const typename binary_tree<Tp>::bitree_node&) const noexcept;
+        virtual std::optional<std::stack<bitree_node*>> pathTo(bitree_node*) const noexcept;
+        virtual std::vector<bitree_node*> toVector(const bitree_node&) const noexcept;
 
 
         //****** Properties ******//
-        [[nodiscard]] constexpr bool is_complete(typename binary_tree<Tp>::bitree_node *const node) const noexcept  { return complete(node, 0); }
-        [[nodiscard]] constexpr bool is_perfect(typename binary_tree<Tp>::bitree_node *const node) const noexcept   { return perfect(node, 0); }
-        constexpr bool is_balanced(typename binary_tree<Tp>::bitree_node*) const noexcept;
-        constexpr bool is_full(typename binary_tree<Tp>::bitree_node*) const noexcept;
-        constexpr bool is_mirror(typename binary_tree<Tp>::bitree_node*, typename binary_tree<Tp>::bitree_node*) const noexcept;
+        [[nodiscard]] constexpr bool is_complete(bitree_node *const node) const noexcept  { return complete(node, 0); }
+        [[nodiscard]] constexpr bool is_perfect(bitree_node *const node) const noexcept   { return perfect(node, 0); }
+        constexpr bool is_balanced(bitree_node*) const noexcept;
+        constexpr bool is_full(bitree_node*) const noexcept;
+        constexpr bool is_mirror(bitree_node*, bitree_node*) const noexcept;
 
 
         //****** Modifiers ******//
@@ -126,16 +126,16 @@ namespace dsl::nonlinear::tree
 
 
     protected:
-        typename binary_tree<Tp>::bitree_node *m_root;    // prefer smart ptr; this impl uses owning raw ptr
+        bitree_node *m_root;    // prefer smart ptr; this impl uses owning raw ptr
         int m_size;
 
 
     private:
-        constexpr typename binary_tree<Tp>::bitree_node* copy(typename binary_tree<Tp>::bitree_node*);
-        constexpr bool complete(typename binary_tree<Tp>::bitree_node*, int) const noexcept;
-        constexpr bool perfect(typename binary_tree<Tp>::bitree_node*, int, int=0) const noexcept;
-        constexpr bool hasPath(typename binary_tree<Tp>::bitree_node*, const typename binary_tree<Tp>::bitree_node&, std::stack<typename binary_tree<Tp>::bitree_node*>&) const noexcept;
-        constexpr void vectorize(typename binary_tree<Tp>::bitree_node*, std::vector<typename binary_tree<Tp>::bitree_node*>&) const noexcept;
+        constexpr bitree_node* copy(bitree_node*);
+        constexpr bool complete(bitree_node*, int) const noexcept;
+        constexpr bool perfect(bitree_node*, int, int=0) const noexcept;
+        constexpr bool hasPath(bitree_node*, const bitree_node&, std::stack<bitree_node*>&) const noexcept;
+        constexpr void vectorize(bitree_node*, std::vector<bitree_node*>&) const noexcept;
 
     };  // class binary_tree
 
@@ -162,7 +162,7 @@ namespace dsl::nonlinear::tree
     {
         if (m_root != nullptr)
         {
-            auto q { std::queue<typename binary_tree<Tp>::bitree_node*>{} };
+            auto q { std::queue<bitree_node*>{} };
             q.push(m_root);
             while (!q.empty())
             {
@@ -249,7 +249,7 @@ namespace dsl::nonlinear::tree
     {
         if (t.m_root != nullptr)
         {
-            auto q { std::queue<binary_tree<Tp>::typename binary_tree<Tp>::bitree_node *const>{} };
+            auto q { std::queue<binary_tree<Tp>::bitree_node *const>{} };
             q.push(m_root);
             while (!q.empty())
             {
@@ -502,7 +502,7 @@ namespace dsl::nonlinear::tree
     constexpr bool binary_tree<Tp>::push(const Tp &value)
     {
         if (m_root == nullptr)
-            m_root = new typename binary_tree<Tp>::bitree_node<Tp>(value);
+            m_root = new bitree_node<Tp>(value);
         else
         {
             auto q { std::queue<bitree_node*>{} };
@@ -515,7 +515,7 @@ namespace dsl::nonlinear::tree
 
                 if (curr->m_left == nullptr)
                 {
-                    curr->m_left = new typename binary_tree<Tp>::bitree_node<Tp>(value);
+                    curr->m_left = new bitree_node<Tp>(value);
                     break;
                 }
                 else
@@ -523,7 +523,7 @@ namespace dsl::nonlinear::tree
 
                 if (curr->m_right == nullptr)
                 {
-                    curr->m_right = new typename binary_tree<Tp>::bitree_node<Tp>(value);
+                    curr->m_right = new bitree_node<Tp>(value);
                     break;
                 }
                 else
@@ -597,7 +597,7 @@ namespace dsl::nonlinear::tree
     std::optional<std::stack<typename binary_tree<Tp>::bitree_node*>>
     binary_tree<Tp>::pathTo(typename binary_tree<Tp>::bitree_node *const node) const noexcept
     {
-        auto s { std::stack<typename binary_tree<Tp>::bitree_node*>{} };
+        auto s { std::stack<bitree_node*>{} };
         auto b = hasPath(m_root, node, s);
         return (b) ? s : std::nullopt;
     }
@@ -621,7 +621,7 @@ namespace dsl::nonlinear::tree
     std::vector<typename binary_tree<Tp>::bitree_node*>
     binary_tree<Tp>::toVector(const typename binary_tree<Tp>::bitree_node &root) const noexcept
     {
-        auto v { std::vector<typename binary_tree<Tp>::bitree_node*>{} };
+        auto v { std::vector<bitree_node*>{} };
         vectorize(root);
         return v;
     }
