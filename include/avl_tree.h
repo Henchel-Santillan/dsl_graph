@@ -37,7 +37,7 @@ namespace dsl::nonlinear::tree
 
 
         //****** Access ******//
-        constexpr int balanceOf(bitree_node*) const noexcept;
+        [[nodiscard]] constexpr int balanceOf(bitree_node*) const noexcept;
 
 
         //****** Modifiers ******//

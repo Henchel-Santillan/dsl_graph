@@ -44,7 +44,7 @@ namespace dsl::nonlinear::tree
         constexpr void increase_key(const Tp&, const Tp&) noexcept;
         constexpr void decrease_key(const Tp&, const Tp&) noexcept;
 
-        constexpr const Tp& max() const override { return this->m_root->m_value; }
+        [[nodiscard]] constexpr const Tp& max() const override { return this->m_root->m_value; }
         constexpr bool push(const Tp&) override;
         constexpr bool pop(const Tp&) override;
 

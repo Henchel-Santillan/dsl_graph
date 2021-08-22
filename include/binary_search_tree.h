@@ -35,8 +35,8 @@ namespace dsl::nonlinear::tree
 
 
         //****** Access ******//
-        constexpr const bitree_node& maxKey(const bitree_node&) const noexcept override;
-        constexpr const bitree_node& minKey(const bitree_node&) const noexcept override;
+        [[nodiscard]] constexpr const bitree_node& maxKey(const bitree_node&) const noexcept override;
+        [[nodiscard]] constexpr const bitree_node& minKey(const bitree_node&) const noexcept override;
 
         constexpr std::optional<bitree_node&> parentOf(const Tp&) const noexcept override;
         [[nodiscard]] constexpr std::optional<bitree_node&> parentOf(const bitree_node &node) const noexcept override

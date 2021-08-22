@@ -96,10 +96,10 @@ namespace dsl::nonlinear::graph
         constexpr std::optional<const digraph_node&> find_bfs(const Tp&) const noexcept;
         constexpr std::optional<const digraph_node&> find_dfs(const Tp&) const noexcept;
 
-        constexpr bool has_link(const Tp&, const Tp&) const noexcept;
+        [[nodiscard]] constexpr bool has_link(const Tp&, const Tp&) const noexcept;
         [[nodiscard]] constexpr int count_disconnected() const noexcept;
-        constexpr int in_degree(const Tp&) const noexcept;
-        constexpr int out_degree(const Tp&) const noexcept;
+        [[nodiscard]] constexpr int in_degree(const Tp&) const noexcept;
+        [[nodiscard]] constexpr int out_degree(const Tp&) const noexcept;
 
 
         //****** Modifiers ******//

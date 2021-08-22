@@ -100,7 +100,7 @@ namespace dsl::nonlinear::tree
 
         [[nodiscard]] virtual constexpr const Tp& max(const bitree_node &from) const noexcept  { return maxKey(from).m_value; }
         [[nodiscard]] virtual constexpr const Tp& min(const bitree_node &from) const noexcept  { return minKey(from).m_value; }
-        [[nodiscard]]  constexpr const Tp& max() const;
+        [[nodiscard]] virtual constexpr const Tp& max() const;
         [[nodiscard]] virtual constexpr const Tp& min() const;    // throws if root is nullptr
 
         virtual constexpr std::optional<bitree_node&> parentOf(const bitree_node&) const noexcept;
