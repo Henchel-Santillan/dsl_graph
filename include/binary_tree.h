@@ -85,39 +85,38 @@ namespace dsl::nonlinear::tree
         [[nodiscard]] constexpr bitree_node* root() const noexcept    { return m_root; }
         [[nodiscard]] constexpr int size() const noexcept             { return m_size; }
 
-        template <Comparable Tp>
-        [[nodiscard]] constexpr int binary_tree<Tp>::depth(binary_tree::bitree_node *const root) const noexcept
+        [[nodiscard]] constexpr int depth(bitree_node *const root) const noexcept
         { return (root == nullptr) ? 0 : std::max(depth(root->m_left) + 1, depth(root->m_right) + 1); }
 
         constexpr void in_order(bitree_node*, std::ostream&) const noexcept;
         constexpr void post_order(bitree_node*, std::ostream&) const noexcept;
         constexpr void pre_order(bitree_node*, std::ostream&) const noexcept;
-        constexpr bitree_node* last_level_order() const;
+        [[nodiscard]] constexpr bitree_node* last_level_order() const;
 
         friend std::ostream& operator<<(std::ostream&, const binary_tree<Tp>&) noexcept;
 
-        virtual constexpr const bitree_node& maxKey(const bitree_node&) const noexcept;
-        virtual constexpr const bitree_node& minKey(const bitree_node&) const noexcept;
+        [[nodiscard]] virtual constexpr const bitree_node& maxKey(const bitree_node&) const noexcept;
+        [[nodiscard]] virtual constexpr const bitree_node& minKey(const bitree_node&) const noexcept;
 
         [[nodiscard]] virtual constexpr const Tp& max(const bitree_node &from) const noexcept  { return maxKey(from).m_value; }
         [[nodiscard]] virtual constexpr const Tp& min(const bitree_node &from) const noexcept  { return minKey(from).m_value; }
-        virtual constexpr const Tp& max() const;
-        virtual constexpr const Tp& min() const;    // throws if root is nullptr
+        [[nodiscard]]  constexpr const Tp& max() const;
+        [[nodiscard]] virtual constexpr const Tp& min() const;    // throws if root is nullptr
 
         virtual constexpr std::optional<bitree_node&> parentOf(const bitree_node&) const noexcept;
         virtual constexpr std::optional<bitree_node&> parentOf(const Tp&) const noexcept;
         virtual constexpr std::optional<bitree_node&> find(const Tp&) const noexcept;
 
         virtual std::optional<std::stack<bitree_node*>> pathTo(bitree_node*) const noexcept;
-        virtual std::vector<bitree_node*> toVector(const bitree_node&) const noexcept;
+        [[nodiscard]] virtual std::vector<bitree_node*> toVector(const bitree_node&) const noexcept;
 
 
         //****** Properties ******//
         [[nodiscard]] constexpr bool is_complete(bitree_node *const node) const noexcept  { return complete(node, 0); }
         [[nodiscard]] constexpr bool is_perfect(bitree_node *const node) const noexcept   { return perfect(node, 0); }
-        constexpr bool is_balanced(bitree_node*) const noexcept;
-        constexpr bool is_full(bitree_node*) const noexcept;
-        constexpr bool is_mirror(bitree_node*, bitree_node*) const noexcept;
+        [[nodiscard]] constexpr bool is_balanced(bitree_node*) const noexcept;
+        [[nodiscard]] constexpr bool is_full(bitree_node*) const noexcept;
+        [[nodiscard]] constexpr bool is_mirror(bitree_node*, bitree_node*) const noexcept;
 
 
         //****** Modifiers ******//
@@ -249,7 +248,7 @@ namespace dsl::nonlinear::tree
     {
         if (t.m_root != nullptr)
         {
-            auto q { std::queue<binary_tree<Tp>::bitree_node *const>{} };
+            auto q { std::queue<bitree_node *const>{} };
             q.push(m_root);
             while (!q.empty())
             {
@@ -549,10 +548,11 @@ namespace dsl::nonlinear::tree
             if (p)
             {
                 auto parent = *p;
+                bitree_node *node = nullptr;
                 if (parent.m_left != nullptr && parent.m_right != nullptr)
-                    auto *node = (parent.m_left->m_value == value) ? parent.m_left : parent.m_right;
+                    node = (parent.m_left->m_value == value) ? parent.m_left : parent.m_right;
                 else
-                    auto *node = (parent.m_left != nullptr) ? parent.m_left : parent.m_right;
+                    node = (parent.m_left != nullptr) ? parent.m_left : parent.m_right;
 
                 node->m_value = last->m_value;
             }
